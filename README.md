@@ -2,7 +2,7 @@
 
 by [Yuji Saikai](https://yujisaikai.com) and [Khue-Dung Dang](https://scholar.google.com.au/citations?user=lg56IkAAAAAJ&hl=en)
 
-A preprint is (to be) on arXiv. The code was tested under Python `3.11.1` and NumPy `1.24.1`. To run a batch of experiments, execute `experiments.py`. You may want to change some parameters (e.g. training samples, MCMC iterations, etc.) at the top of the file. Results are saved as `.pickle` files and store in `experiments` directory. To process the results, execute `analysis.py`.
+A preprint is (soon to be found) on arXiv. The code was tested under Python `3.11.1` and NumPy `1.24.1`. To run a batch of experiments, execute `experiments.py`. You may want to change some parameters (e.g. training samples, MCMC iterations, etc.) at the top of the file. Results are saved as `.pickle` files and store in `experiments` directory. To process the results, execute `analysis.py`.
 
 **Abstract**
 
