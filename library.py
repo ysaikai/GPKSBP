@@ -56,28 +56,36 @@ def expert_stats(i, GPs, M, S, burnin, RG=False):
 
 
 def sample_alpha(b, vv, par):
-  s_star = len(vv)
+  i_star = len(vv)
 
   # unnormalised log-posterior
   def lp(a):
     nn = np.arange(a, a+int(b)+1) # from alpha to alpha+beta
-    return s_star*np.sum(np.log(nn)) + (a-1)*lpv
+    return i_star*np.sum(np.log(nn)) + (a-1)*lpv
 
   # lpv: log of (1-p_alpha)*prod(vv)
   lpv = np.log(1-par) + np.sum(np.log(vv))
   # serach for a_star by increment it by 1
   a_star = 1
-  lphi = s_star*np.log((a_star+b)/a_star) + lpv # log(phi)
+  lphi = i_star*np.log((a_star+b)/a_star) + lpv # log(phi)
   while lphi >= 0:
     a_star += 1
-    lphi = s_star*np.log((a_star+b)/a_star) + lpv
+    lphi = i_star*np.log((a_star+b)/a_star) + lpv
+  phi = np.exp(lphi)
 
+  # proposal PMF
+  p_star = 1/(a_star + phi/(1-phi)) # p_bar/c
+    
   # rejection sampling
-  ## a_hat: proposal; lcq: log(c*q(alpha))
   while True:
-    a_hat = rnd.geometric(1-np.exp(lphi))
-    if a_hat <= a_star:
+    # a_hat: proposal
+    if rnd.rand() < p_star*a_star:
       a_hat = rnd.choice(range(1,a_star+1)) # uniform
+    else:
+      a_hat = rnd.geometric(1-phi) + a_star
+
+    # lcq: log(c*q(a))
+    if a_hat <= a_star:
       lcq = lp(a_star)
     else:
       lcq = lp(a_star) + (a_hat-a_star)*lphi
@@ -88,28 +96,36 @@ def sample_alpha(b, vv, par):
 
 
 def sample_beta(a, vv, par):
-  s_star = len(vv)
+  i_star = len(vv)
 
   # unnormalised log-posterior
   def lp(b):
     nn = np.arange(b, int(a)+b+1) # from beta to alpha+beta
-    return s_star*np.sum(np.log(nn)) + (b-1)*lpv
+    return i_star*np.sum(np.log(nn)) + (b-1)*lpv
 
   # lpv: log of (1-p_beta)*prod(1-vv)
   lpv = np.log(1-par) + np.sum(np.log(1-vv))
   # serach for b_star by increment it by 1
   b_star = 1
-  lphi = s_star*np.log((a+b_star)/b_star) + lpv # log(phi)
+  lphi = i_star*np.log((a+b_star)/b_star) + lpv # log(phi)
   while lphi >= 0:
     b_star += 1
-    lphi = s_star*np.log((a+b_star)/b_star) + lpv
+    lphi = i_star*np.log((a+b_star)/b_star) + lpv
+  phi = np.exp(lphi)
   
+  # proposal PMF
+  p_star = 1/(b_star + phi/(1-phi)) # p_bar/c
+
   # rejection sampling
-  ## b_hat: proposal; lcq: log(c*q(beta))
   while True:
-    b_hat = rnd.geometric(1-np.exp(lphi))
-    if b_hat <= b_star:
+    # b_hat: proposal
+    if rnd.rand() < p_star*b_star:
       b_hat = rnd.choice(range(1,b_star+1)) # uniform
+    else:
+      b_hat = rnd.geometric(1-phi) + b_star
+
+    # lcq: log(c*q(b))
+    if b_hat <= b_star:
       lcq = lp(b_star)
     else:
       lcq = lp(b_star) + (b_hat-b_star)*lphi
